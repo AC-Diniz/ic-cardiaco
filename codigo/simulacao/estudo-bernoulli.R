@@ -165,3 +165,56 @@ for (n in tamanho_n) {
 
 View(tabela_2_proporcao)
 
+
+
+
+# TABELA 3: TAXA DE COBERTURA PARA 500 RÉPLICAS ---------------------------
+
+# Criando a tabela --------------------------------------------------------
+tabela_3_cobertura <- data.frame(
+  n = integer(),
+  p_teorico = numeric(),
+  taxa_cobertura = numeric(),
+  diferenca_nomial = numeric()
+)
+
+
+# Simulação for -----------------------------------------------------------
+
+for (n in tamanho_n) {
+  for (p in valores_p) {
+    
+    coberturas <- logical(num_rep)
+    
+    for (r in 1:num_rep) {
+      
+      # Gerando a Bernoulli
+      y <- rbinom(n = n, size = 1, prob = p)
+      p_pont <- mean(y)
+      
+      # Erro padrão e limites de Wald
+      ep <- sqrt((p_pont*(1-p_pont))/n)
+      li <- max(0, p_pont - 1.96 * ep)
+      ls <- min(1, p_pont + 1.96 * ep)
+      
+      # Verificando se o intervalo contém o verdadeiro valor de p
+      coberturas[r] <- (p >= li) & (p <= ls)
+      
+    }
+    
+    # Taxa de cobertura empírica (média dos TRUE/ FALSE nas 500 réplicas)
+    taxa_empirica <- mean(coberturas)
+    
+    tabela_3_cobertura <- rbind(tabela_3_cobertura, data.frame(
+      n = n,
+      p_teorico = p,
+      taxa_cobertura = round(taxa_empirica, 3),
+      # Quanto desvio de 95%
+      diferenca_nomial = round(taxa_empirica - 0.95, 3)
+    ))
+    
+    
+  }
+}
+
+View(tabela_3_cobertura)
