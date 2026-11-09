@@ -42,7 +42,58 @@ tabela_1_problemas <- data.frame(
 )
 
 
+# Simulação com for -------------------------------------------------------
 
+for (n in tamanho_n) {
+  for (p in valores_p) {
+    
+    # Amostra de Bernoulli
+    y <- rbinom( n = n, size = 1, prob = p)
+    
+    # Estimativa pontual
+    p_pont <- mean(y)
+    
+    # Erro da proporção (raiz da variância amostral)
+    ep <- sqrt((p_pont * (1-p_pont))/ n)
+    
+    # Limites inferior e superior (intervalo de confiaça com 1-a = 0.95)
+    li_bruto <- p_pont - 1.96 * ep
+    ls_bruto <- p_pont + 1.96 * ep
+    
+    # Condição de classificação de problemas
+    if (li_bruto < 0 & ls_bruto > 1) {
+      status_problema <- "Sim (abaixo de 0 e acima de 1"
+    } 
+    else if ( li_bruto < 0) {
+      status_problema <- "Sim (abaixo de 0)"
+    }
+    else if (ls_bruto > 1) {
+      status_problema <- "Sim (acima de 1)"
+    } else {
+      status_problema <- "Não"
+    }
+    
+    # Limitando o intervalo de 0 a 1 (Bernoulli)
+    li_trunc <- max(0, li_bruto)
+    ls_trunc <- min(1, ls_bruto)
+    
+    # Verificando se o parâmetro real (p) está dentro do intervalo
+    cobre <- (p >= li_trunc) & (p <= ls_trunc)
+    
+    tabela_1_problemas <- rbind(tabela_1_problemas, data.frame(
+      n = n,
+      p_teorico = p,
+      p_estimado = round(p_pont, 3),
+      li_bruto = round(li_bruto, 3),
+      ls_bruto = round(ls_bruto, 3),
+      houve_problema = status_problema,
+      cobre_p = cobre
+    ))
+    
+  }
+}
+
+View(tabela_1_problemas)
 
 
 
