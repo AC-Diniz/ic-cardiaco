@@ -41,22 +41,29 @@ tabela_1_problemas <- data.frame(
   cobre_p = logical()
 )
 
+# O que foi feito: foi criada um data frame vazio e definida as colunas específicas,
+# bem como o tipo de caractere que iria em cada coluna
+
+
+
+
 
 # Simulação com for -------------------------------------------------------
 
+# Criando o laço d repetição para percorrer cada valor (combinações)
 for (n in tamanho_n) {
   for (p in valores_p) {
     
     # Amostra de Bernoulli
     y <- rbinom( n = n, size = 1, prob = p)
     
-    # Estimativa pontual
+    # Estimativa pontual (calcula a proporção amostral p^)
     p_pont <- mean(y)
     
-    # Erro da proporção (raiz da variância amostral)
+    # Erro padrão da proporção (raiz da variância amostral)
     ep <- sqrt((p_pont * (1-p_pont))/ n)
     
-    # Limites inferior e superior (intervalo de confiaça com 1-a = 0.95)
+    # Limites inferior e superior (intervalo de confiaça com 1-a = 0.95 -> Wald)
     li_bruto <- p_pont - 1.96 * ep
     ls_bruto <- p_pont + 1.96 * ep
     
@@ -73,7 +80,7 @@ for (n in tamanho_n) {
       status_problema <- "Não"
     }
     
-    # Limitando o intervalo de 0 a 1 (Bernoulli)
+    # Limitando o intervalo de 0 a 1 (Bernoulli) -> corrige os limites para eles ficarem dentro do intervalo (0, 1)
     li_trunc <- max(0, li_bruto)
     ls_trunc <- min(1, ls_bruto)
     
