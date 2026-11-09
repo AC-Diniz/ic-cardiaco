@@ -8,7 +8,7 @@
 # definindo seus limites inferiores e superiores.
 
 
-# Tabela 1 - Houve problema? ----------------------------------------------
+# TABELA 1: HOUVE PROBLEMA? ----------------------------------------------
 
 # Gerando números pseudo-aleatórios ---------------------------------------
 set.seed(123)
@@ -104,7 +104,64 @@ View(tabela_1_problemas)
 
 
 
+# TABELA  2: PROPORÇÃO DE IC PROBLEMÁTICOS ÁRA 500 RÉPLICAS --------------
+
+# Definindo B para usar no intervalo (número de réplicas)
+num_rep <- 500
 
 
+# Criando a tabela --------------------------------------------------------
 
+tabela_2_proporcao <- data.frame(
+  n = integer(),
+  p_teorico = numeric(),
+  prop_abaixo_0 = numeric(),
+  prop_acima_1 = numeric(),
+  prop_problema_qualquer = numeric()
+)
+
+
+# Simulação for -----------------------------------------------------------
+
+for (n in tamanho_n) {
+  for (p in valores_p) {
+    
+    # Vetores para guardar as réplicas
+    prob_li <- logical(num_rep)
+    prob_ls <- logical(num_rep)
+
+    # Loop
+    for (j in 1:num_rep) {
+      
+      y <- rbinom(n = n, size = 1, prob = p)
+      p_pont <- mean(y)
+      
+      # Erro padrão e limites de Wald (usando as amostras)
+      ep <- sqrt((p_pont * (1-p_pont))/ n)
+      li_bruto <- p_pont - 1.96 * ep
+      ls_bruto <- p_pont + 1.96 * ep
+      
+      # Verificando se ultrapassa os limites
+      prob_li[j] <- (li_bruto < 0)
+      prob_ls[j] <- (ls_bruto > 1)
+      
+    }
+    
+    # Proporção das réplicas
+    p_abaixo_0 <- mean(prob_li)
+    p_acima_1 <- mean(prob_ls)
+    p_problema_qualquer <- mean(prob_li | prob_ls)
+    
+    tabela_2_proporcao <- rbind(tabela_2_proporcao, data.frame(
+      n = n,
+      p_teorico = p,
+      prop_abaixo_0 = round(p_abaixo_0, 3),
+      prop_acima_1 = round(p_acima_1, 3),
+      prop_problema_qualquer = round(p_problema_qualquer, 3)
+    ))
+        
+  }
+}
+
+View(tabela_2_proporcao)
 
