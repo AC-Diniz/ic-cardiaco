@@ -144,6 +144,14 @@ for (i in 1:num_repeticoes) {
 
 proporcao <- contem_problema / num_repeticoes
 
+# Tabela 2
+tabela_2_proporção <- rbind(tabela_2_proporção, data.frame(
+  n = n,
+  p = p,
+  total_problemas = contem_problema,
+  proporcao_problemas = proporcao
+))
 
+View(tabela_2_proporção)
 
 
