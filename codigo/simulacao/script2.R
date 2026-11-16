@@ -104,7 +104,7 @@ View(tabela_1_problemas)
 # TABELA 2 - PROPORÇÃO DE IC PROBLEMÁTICA ---------------------------------
 
 # Definindo os valores fixos
-n <- 10
+n <- 500
 p <- 0.02
 contem_problema <- 0
 num_repeticoes <- 500
@@ -112,7 +112,8 @@ num_repeticoes <- 500
 
 # Criando a tabela --------------------------------------------------------
 
-tabela_2_proporção <- data.frame(
+if(!exists("tabela_2_proporção"))
+  tabela_2_proporção <- data.frame(
   n = integer(),
   p = numeric(),
   total_problemas = integer(),
@@ -135,7 +136,7 @@ for (i in 1:num_repeticoes) {
   ls <- p_pont + 1.96 * ep
   
   # Condição de erro
-  if (li < 0 | ls > 1) {
+  if (li < 0 || ls > 1) {
     contem_problema <- contem_problema + 1
   }
 }
@@ -154,4 +155,53 @@ tabela_2_proporção <- rbind(tabela_2_proporção, data.frame(
 
 View(tabela_2_proporção)
 
+
+# TABELA 3 - TAXA DE COBERTURA PARA 500 RÉPLICAS --------------------------
+
+
+# Criando a tabela ----
+if (!exists("tabela_3_taxa")) { 
+  tabela_3_taxa <- data.frame(
+  n = integer(),
+  p = numeric(),
+  total_contem = integer(),
+  taxa_cobertura = numeric()
+)
+}
+
+# Definindo tamanho da amostra e porcentagem ----
+tam_amostra <- 5000
+porcentagem <- 0.02
+repeticoes <- 500
+contem <- 0
+
+# Criando o laço de repetição ----
+for (j in 1:repeticoes) {
+  
+  # Bernoulli
+  y <- rbinom(n = tam_amostra, size = 1, prob = porcentagem)
+  p_pont <- mean(y)
+  
+  # Erro padrão
+  ep <- sqrt((p_pont * (1-p_pont))/tam_amostra)
+  
+  # Limites para 95% de confiança
+  li <- p_pont - 1.96 * ep
+  ls <- p_pont + 1.96 * ep
+  
+  # Verificando se o intervalo contém p
+  if (porcentagem >= li && porcentagem <= ls) {
+    contem <- contem + 1
+  }
+}
+
+# Adicionando na tabela
+tabela_3_taxa <- rbind(tabela_3_taxa, data.frame(
+  n = tam_amostra,
+  p = porcentagem,
+  total_contem = contem,
+  taxa_cobertura = contem/ repeticoes
+))
+
+View(tabela_3_taxa)
 
